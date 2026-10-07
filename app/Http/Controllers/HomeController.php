@@ -49,9 +49,30 @@ class HomeController extends Controller
         return view('components.products.product-details', compact('product_details'));
     }
 
-    public function subcatepro($id){
-        $productsall = Product::with(['variants', 'category'])->where('category_id',$id)->paginate(15);
+    public function subcatepro(Request $request, $id)
+    {
+        $productsall = $this->listProducts($request, Product::where('category_id', $id));
+
         return view('pages.view-product', compact('productsall'));
+    }
+
+    /**
+     * Applies the ?category[]= filter and ?sort= order from the product listing page, then paginates.
+     */
+    private function listProducts(Request $request, $query)
+    {
+        $categories = array_filter((array) $request->query('category', []), 'is_numeric');
+        if ($categories) {
+            $query->whereIn('category_id', $categories);
+        }
+
+        match ($request->query('sort')) {
+            'price_asc' => $query->orderBy('price'),
+            'price_desc' => $query->orderByDesc('price'),
+            default => $query->latest('id'),
+        };
+
+        return $query->with(['variants', 'category'])->paginate(15)->withQueryString();
     }
 
     public function wishlistPage()
@@ -81,9 +102,9 @@ class HomeController extends Controller
         return view('pages.complete-order');
     }
 
-    public function viewProductPage()
+    public function viewProductPage(Request $request)
     {
-        $productsall = Product::with(['variants', 'category'])->paginate(15);
+        $productsall = $this->listProducts($request, Product::query());
 
         return view('pages.view-product', compact('productsall'));
     }
@@ -254,19 +275,23 @@ class HomeController extends Controller
     {
 
         $request->validate([
-            'product_id' => 'required|integer',
-            'user_id' => 'required|integer',
+            'product_id' => 'required|integer|exists:products,id',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $cart = CartItem::create([
-            'user_id' => $request->user_id,
-            'product_id' => $request->product_id,
-            'quantity' => 1,
-        ]);
-        if ($cart) {
-            return redirect('/cart')->with('add', 'Cart Added SuccessFully');
+        // Always use the logged-in user, never an id sent from the browser.
+        if (!auth()->check()) {
+            return redirect()->route('login');
         }
+
+        $cart = CartItem::firstOrNew([
+            'user_id' => auth()->id(),
+            'product_id' => $request->product_id,
+        ]);
+        $cart->quantity = ($cart->exists ? $cart->quantity : 0) + 1;
+        $cart->save();
+
+        return redirect('/cart')->with('add', 'Cart Added SuccessFully');
     }
 
     public function delete($id)
@@ -464,9 +489,10 @@ class HomeController extends Controller
     public function product_search(Request $request)
 {
         $data = $request->query('search');
-        $productsall = Product::with(['variants','category'])
-        ->where('name', 'like', '%' . $data . '%')
-        ->paginate(15);
+        $productsall = $this->listProducts(
+            $request,
+            Product::where('name', 'like', '%' . $data . '%')
+        );
         return view('pages.view-product', compact('productsall'));
 }
 }

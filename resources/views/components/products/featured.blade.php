@@ -21,7 +21,9 @@
                         <div class="flex justify-between items-center">
                             <div class="flex items-center space-x-2">
                                 <span class="text-pink-700 font-bold text-lg">₹{{ $product->price }}</span>
-                                <span class="text-gray-400 line-through text-sm">₹{{ $product->original_price }}</span>
+                                @if ($product->original_price && $product->original_price > $product->price)
+                                    <span class="text-gray-400 line-through text-sm">₹{{ $product->original_price }}</span>
+                                @endif
                             </div>
                             <button class="p-2 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100">
                                 <i class="fa-solid fa-bag-shopping text-lg"></i>
@@ -40,4 +42,5 @@
         </div>
     </div>
 </div>
+<x-home.price-calculator />
 <x-home.customization/>

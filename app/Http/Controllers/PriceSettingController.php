@@ -79,19 +79,46 @@ class PriceSettingController extends Controller
     }
 
 
+    public function designPage(GoldRateService $gold)
+    {
+        $pieces = PriceSetting::all()->map(fn ($p) => [
+            'name' => $p->name,
+            'purities' => array_values((array) json_decode($p->purity, true)),
+        ])->values();
+
+        return view('pages.create-design', [
+            'pieces' => $pieces,
+            'rates' => $gold->rates(),
+        ]);
+    }
+
     public function customization_form(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'contact' => 'required',
-            'material' => 'required',
-            'description' => 'required|string',
-            'images' => 'required|mimes:png,jpg',
+            'name' => 'required|string|max:120',
+            'contact' => ['required', 'regex:/^[0-9+\-\s]{8,15}$/'],
+            'material' => 'required|string|max:60',
+            'description' => 'required|string|max:2000',
+            'images' => 'required|mimes:png,jpg,jpeg|max:5120',
+            'piece' => 'nullable|string|max:120',
+            'purity' => 'nullable|string|max:10',
+            'weight' => 'nullable|numeric|min:0',
+            'estimate' => 'nullable|numeric|min:0',
+        ], [
+            'contact.regex' => 'Please enter a valid mobile number.',
         ]);
+
+        $description = $request->description;
+        if ($request->filled('piece') && $request->filled('weight')) {
+            $description .= "\n\n[Estimate request] {$request->piece}, {$request->purity}, {$request->weight} g";
+            if ($request->filled('estimate')) {
+                $description .= ', approx ₹' . number_format($request->estimate, 2);
+            }
+        }
 
         if ($request->hasFile('images')) {
             $file = $request->file('images');
-            $imageName = time() . '.' . $file->getClientOriginalExtension();
+            $imageName = time() . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images'), $imageName);
             $imagePath = 'images/' . $imageName;
         } else {
@@ -102,12 +129,12 @@ class PriceSettingController extends Controller
             'name' => $request->name,
             'contact' => $request->contact,
             'material' => $request->material,
-            'description' => $request->description,
+            'description' => $description,
             'images' => $imagePath
         ]);
 
         if ($data) {
-            return back()->with('success', 'Your Data Submitted SuccessFully !');
+            return redirect()->route('design.create')->with('success', 'Thank you. Your design request is with our team, and we will call you soon.');
         }
     }
 

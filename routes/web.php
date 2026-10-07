@@ -123,6 +123,7 @@ Route::get('price/list', [PriceSettingController::class, 'price_list'])->name('p
 Route::put('price/update/{id}', [PriceSettingController::class, 'price_update'])->name('price.update');
 Route::delete('price/delete/{id}', [PriceSettingController::class, 'price_delete'])->name('price.delete');
 Route::get('prices/edit/{id}', [PriceSettingController::class, 'price_edit'])->name('price.edit');
+Route::get('create-your-design', [PriceSettingController::class, 'designPage'])->name('design.create');
 Route::post('add/customise/form',[PriceSettingController::class, 'customization_form'])->name('add.Customization');
 Route::get('custom/list',[PriceSettingController::class, 'custom_list'])->name('custom.list');
 Route::get('gold-rates', [PriceSettingController::class, 'goldRates'])->name('gold.rates');

@@ -4,6 +4,12 @@ return [
 
     'goldapi' => [
         'key' => env('GOLD_API_KEY'),
+        // Live API calls per day. Free plan = 100 requests/month, so 3/day (~93/month) is safe.
+        'calls_per_day' => env('GOLD_API_CALLS_PER_DAY', 3),
+        // Hard monthly cap on API calls; set to 0 to disable (e.g. on a paid plan).
+        // Flat rupees per gram added on top of the live rate shown on the website (0 = show the live rate as is).
+        'markup' => env('GOLD_PRICE_MARKUP', 0),
+        'monthly_limit' => env('GOLD_API_MONTHLY_LIMIT', 100),
     ],
 
     /*
