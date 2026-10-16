@@ -1,7 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Home Page')
 @section('content')
-    <x-home.gold-rate-bar />
     <x-home.slider />
     <x-products.top-product :topproduct="$top_product"/>
      <x-home.banner-carousel/>

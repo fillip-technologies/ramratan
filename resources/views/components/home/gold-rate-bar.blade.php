@@ -6,60 +6,59 @@
         : null;
 @endphp
 
-{{-- Discreet gold-rate dock, pinned to the left edge. Click (or hover on desktop) to expand. --}}
-<div id="goldRateDock" x-data="{ open: false }" @click.away="open = false" @mouseenter="if (window.matchMedia('(hover: hover)').matches) open = true"
-    @mouseleave="if (window.matchMedia('(hover: hover)').matches) open = false"
-    class="fixed right-0 top-36 z-40 select-none">
+{{-- Gold-rate ribbon: always visible under the header on the landing page. --}}
+<section id="goldRateRibbon" aria-label="Today's gold rate"
+    class="relative bg-gradient-to-r from-stone-900 via-rose-950 to-stone-900 text-amber-50 border-b border-amber-400/30">
+    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/70 to-transparent"></div>
 
-    <div class="gold-dock overflow-hidden rounded-l-2xl border border-r-0 border-pink-200 bg-white/95 backdrop-blur-md text-gray-700 shadow-lg shadow-pink-200/60 transition-all duration-500 ease-out"
-        :class="open ? 'w-52 sm:w-56' : 'w-[7.25rem] sm:w-32'">
+    <div class="mx-auto max-w-6xl px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between sm:justify-center gap-3 sm:gap-8">
 
-        <!-- Always-visible header: tap target -->
-        <button type="button" @click="open = !open" :aria-expanded="open" aria-label="Today's gold rate"
-            class="w-full flex items-center gap-2 px-3 py-2.5 text-left">
-            <span class="relative flex h-1.5 w-1.5 shrink-0">
-                <span class="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-60 animate-ping"></span>
-                <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+        <!-- Label -->
+        <div class="hidden sm:flex items-center gap-2 shrink-0">
+            <span class="relative flex h-2 w-2">
+                <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70 animate-ping"></span>
+                <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
             </span>
+            <span class="text-[11px] uppercase tracking-[0.25em] font-semibold text-amber-300">Today's Gold Rate</span>
+            <span class="text-[10px] text-amber-100/50">/ gram</span>
+        </div>
 
-            <span class="flex-1 min-w-0">
-                <span class="block text-[0.55rem] uppercase tracking-[0.22em] text-pink-700 leading-none font-medium"
-                    x-text="open ? 'Today\'s gold rate' : '24K · per gram'"></span>
-                <span x-show="!open" class="block mt-1 text-[0.95rem] leading-none font-semibold text-rose-600"
-                    data-gold-rate="24K">{{ $goldRates ? $fmt($goldRates['24K']) : 'N/A' }}</span>
-            </span>
+        <span class="hidden sm:block h-5 w-px bg-amber-300/25"></span>
 
-            <i class="fa-solid fa-chevron-left text-[0.6rem] text-pink-400 transition-transform duration-500"
-                :class="open && 'rotate-180'"></i>
-        </button>
+        <!-- Rates -->
+        <ul class="flex flex-1 sm:flex-none items-center justify-around sm:justify-start gap-2 sm:gap-8">
+            @foreach (['24K', '22K', '18K'] as $k)
+                <li class="flex items-baseline gap-1.5 sm:gap-2">
+                    <span class="text-[10px] sm:text-xs font-bold text-amber-300 tracking-wider">{{ $k }}</span>
+                    <span class="text-sm sm:text-base font-semibold text-white tabular-nums"
+                        data-gold-rate="{{ $k }}">{{ $goldRates ? $fmt($goldRates[$k]) : 'N/A' }}</span>
+                </li>
+            @endforeach
+        </ul>
 
-        <!-- Expanded details -->
-        <div x-show="open" x-cloak x-transition:enter="transition duration-500" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-            <div class="mx-3 border-t border-pink-100"></div>
-            <ul class="px-3 py-2 space-y-1.5 bg-pink-50/70">
-                @foreach (['24K', '22K', '18K'] as $k)
-                    <li class="flex items-baseline justify-between">
-                        <span class="text-xs font-semibold text-pink-700">{{ $k }}</span>
-                        <span class="text-sm font-semibold text-gray-800"
-                            data-gold-rate="{{ $k }}">{{ $goldRates ? $fmt($goldRates[$k]) : 'N/A' }}</span>
-                    </li>
-                @endforeach
-            </ul>
+        <span class="hidden md:block h-5 w-px bg-amber-300/25"></span>
+
+        <!-- Meta + CTA -->
+        <div class="flex items-center gap-3 shrink-0">
             @if ($updated)
-                <p class="px-3 py-1.5 text-[0.6rem] bg-pink-50/70 text-gray-400">Updated {{ $updated }} IST</p>
+                <span class="hidden md:inline text-[10px] text-amber-100/50">Updated {{ $updated }} IST</span>
             @endif
+            <a href="{{ route('design.create') }}#price-calculator"
+                class="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-amber-300/50 px-3 py-1 text-[11px] font-medium text-amber-200 hover:bg-amber-300 hover:text-stone-900 transition-colors">
+                Price Calculator <i class="fa-solid fa-arrow-right text-[9px]"></i>
+            </a>
         </div>
     </div>
-</div>
+
+    {{-- Mobile caption --}}
+    <p class="sm:hidden pb-1.5 -mt-1 text-center text-[9px] uppercase tracking-[0.2em] text-amber-100/50">
+        Gold rate per gram{{ $updated ? ' · ' . $updated : '' }}
+    </p>
+</section>
 
 <style>
-    [x-cloak] {
-        display: none !important;
-    }
-
     @media (prefers-reduced-motion: reduce) {
-        #goldRateDock .gold-dock { transition: none; }
-        #goldRateDock .animate-ping { animation: none; }
+        #goldRateRibbon .animate-ping { animation: none; }
     }
 </style>
 
