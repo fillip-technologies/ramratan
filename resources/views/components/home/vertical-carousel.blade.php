@@ -105,7 +105,7 @@
          }
 
          // Scroll to the previous item
-         prevBtn.addEventListener("click", () => {
+         prevBtn?.addEventListener("click", () => {
              const scrollAmount = getScrollAmount();
              carousel.scrollBy({
                  left: -scrollAmount,
@@ -114,7 +114,7 @@
          });
 
          // Scroll to the next item
-         nextBtn.addEventListener("click", () => {
+         nextBtn?.addEventListener("click", () => {
              const scrollAmount = getScrollAmount();
              carousel.scrollBy({
                  left: scrollAmount,
