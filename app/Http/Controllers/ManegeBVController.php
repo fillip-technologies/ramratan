@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ManageBv;
+use App\Support\SafeUpload;
 use Illuminate\Http\Request;
 
 class ManegeBVController extends Controller
@@ -30,7 +31,7 @@ public function store(Request $request)
 
     if ($request->hasFile('slider_images')) {
         foreach ($request->file('slider_images') as $img) {
-            $filename = uniqid() . '_' . time() . '.' . $img->getClientOriginalExtension();
+            $filename = uniqid() . '_' . time() . '.' . SafeUpload::ext($img, SafeUpload::IMAGES);
             $img->move(public_path('uploads/banner/images'), $filename);
 
             $banner['slider_image'][] = $filename;
@@ -39,7 +40,7 @@ public function store(Request $request)
 
     if ($request->hasFile('multi_videos')) {
         foreach ($request->file('multi_videos') as $video) {
-            $filename = uniqid() . '_' . time() . '.' . $video->getClientOriginalExtension();
+            $filename = uniqid() . '_' . time() . '.' . SafeUpload::ext($video, SafeUpload::VIDEOS);
             $video->move(public_path('uploads/banner/videos'), $filename);
 
             $banner['mines_video'][] = $filename;
@@ -49,7 +50,7 @@ public function store(Request $request)
     if ($request->hasFile('single_video')) {
 
         $single = $request->file('single_video');
-        $filename = uniqid() . '_' . time() . '.' . $single->getClientOriginalExtension();
+        $filename = uniqid() . '_' . time() . '.' . SafeUpload::ext($single, SafeUpload::VIDEOS);
 
         $single->move(public_path('uploads/banner/singleVideo'), $filename);
 
@@ -58,7 +59,7 @@ public function store(Request $request)
 
     if ($request->hasFile('gallery_videos')) {
         $gallery = $request->file('gallery_videos');
-        $filename = uniqid() . '_' . time() . '.' . $gallery->getClientOriginalExtension();
+        $filename = uniqid() . '_' . time() . '.' . SafeUpload::ext($gallery, SafeUpload::VIDEOS);
 
         $gallery->move(public_path('uploads/banner/galleryVideo'), $filename);
 
@@ -104,7 +105,7 @@ public function update(Request $request, $id)
 
     if ($request->hasFile('slider_images')) {
         foreach ($request->file('slider_images') as $img) {
-            $filename = uniqid() . '_' . time() . '.' . $img->getClientOriginalExtension();
+            $filename = uniqid() . '_' . time() . '.' . SafeUpload::ext($img, SafeUpload::IMAGES);
             $img->move(public_path('uploads/banner/images'), $filename);
             $slider_images[] = $filename;
         }
@@ -113,7 +114,7 @@ public function update(Request $request, $id)
 
     if ($request->hasFile('multi_videos')) {
         foreach ($request->file('multi_videos') as $video) {
-            $filename = uniqid() . '_' . time() . '.' . $video->getClientOriginalExtension();
+            $filename = uniqid() . '_' . time() . '.' . SafeUpload::ext($video, SafeUpload::VIDEOS);
             $video->move(public_path('uploads/banner/videos'), $filename);
             $multi_videos[] = $filename;
         }
@@ -126,7 +127,7 @@ public function update(Request $request, $id)
         }
 
         $single = $request->file('single_video');
-        $filename = uniqid() . '_' . time() . '.' . $single->getClientOriginalExtension();
+        $filename = uniqid() . '_' . time() . '.' . SafeUpload::ext($single, SafeUpload::VIDEOS);
         $single->move(public_path('uploads/banner/singleVideo'), $filename);
         $banner->during_video = $filename;
     }
@@ -139,7 +140,7 @@ public function update(Request $request, $id)
         }
 
         $gallery = $request->file('gallery_videos');
-        $filename = uniqid() . '_' . time() . '.' . $gallery->getClientOriginalExtension();
+        $filename = uniqid() . '_' . time() . '.' . SafeUpload::ext($gallery, SafeUpload::VIDEOS);
         $gallery->move(public_path('uploads/banner/galleryVideo'), $filename);
         $banner->gallery_video = $filename;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SafeUpload;
 use App\Models\CostumForm;
 use App\Models\PriceSetting;
 use App\Services\GoldRateService;
@@ -118,7 +119,7 @@ class PriceSettingController extends Controller
 
         if ($request->hasFile('images')) {
             $file = $request->file('images');
-            $imageName = time() . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $imageName = time() . '-' . uniqid() . '.' . SafeUpload::ext($file, SafeUpload::IMAGES);
             $file->move(public_path('images'), $imageName);
             $imagePath = 'images/' . $imageName;
         } else {
