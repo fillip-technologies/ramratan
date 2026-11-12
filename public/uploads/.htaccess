@@ -1,0 +1,5 @@
+# Never execute scripts in upload folders (security fix)
+<FilesMatch "\.(php\d?|phtml|phar|pht|phps|cgi|pl|py|sh|shtml)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes -ExecCGI

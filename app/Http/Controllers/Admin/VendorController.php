@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Support\SafeUpload;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Vendor;
@@ -166,7 +167,7 @@ class VendorController extends Controller
                 unlink(public_path($vendor->cover_image));
             }
             $file = $request->file('cover_image');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time() . '_' . uniqid() . '.' . SafeUpload::ext($file, SafeUpload::IMAGES);
             $file->move(public_path('vendor/cover'), $filename);
             $validated['cover_image'] = 'vendor/cover/' . $filename;
         }
@@ -207,7 +208,7 @@ class VendorController extends Controller
                 // Upload new portfolio image
                 if ($request->hasFile("portfolio.$i.image")) {
                     $file = $request->file("portfolio.$i.image");
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = time() . '_' . uniqid() . '.' . SafeUpload::ext($file, SafeUpload::IMAGES);
                     $file->move(public_path('vendor/portfolio'), $filename);
                     $imagePath = 'vendor/portfolio/' . $filename;
                 }

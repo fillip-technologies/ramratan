@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Support\SafeUpload;
 use App\Http\Controllers\Controller;
 use App\Models\Venue;
 use App\Models\VenueImage;
@@ -110,7 +111,7 @@ class VenueController extends Controller
 
             // 2. Save Main Image
             if ($request->hasFile('main_image')) {
-                $filename = time() . '_' . $request->file('main_image')->getClientOriginalName();
+                $filename = time() . '_' . uniqid() . '.' . SafeUpload::ext($request->file('main_image'), SafeUpload::IMAGES);
                 $request->file('main_image')->move(public_path('venue_images'), $filename);
                 $venue->main_image = 'venue_images/' . $filename;
                 $venue->save();
@@ -122,7 +123,7 @@ class VenueController extends Controller
                     $path = null;
 
                     if (isset($imageData['image_path']) && $imageData['image_path'] instanceof \Illuminate\Http\UploadedFile) {
-                        $filename = time() . '_' . $imageData['image_path']->getClientOriginalName();
+                        $filename = time() . '_' . uniqid() . '.' . SafeUpload::ext($imageData['image_path'], SafeUpload::IMAGES);
                         $imageData['image_path']->move(public_path('venue_images'), $filename);
                         $path = 'venue_images/' . $filename;
                     }
@@ -312,7 +313,7 @@ class VenueController extends Controller
                     unlink(public_path($venue->main_image));
                 }
 
-                $filename = time() . '_' . $request->file('main_image')->getClientOriginalName();
+                $filename = time() . '_' . uniqid() . '.' . SafeUpload::ext($request->file('main_image'), SafeUpload::IMAGES);
                 $request->file('main_image')->move(public_path('venue_images'), $filename);
                 $venue->main_image = 'venue_images/' . $filename;
             }
@@ -339,7 +340,7 @@ class VenueController extends Controller
 
                     // If new image uploaded
                     if (isset($imageData['image_path']) && $imageData['image_path'] instanceof \Illuminate\Http\UploadedFile) {
-                        $filename = time() . '_' . $imageData['image_path']->getClientOriginalName();
+                        $filename = time() . '_' . uniqid() . '.' . SafeUpload::ext($imageData['image_path'], SafeUpload::IMAGES);
                         $imageData['image_path']->move(public_path('venue_images'), $filename);
                         $path = 'venue_images/' . $filename;
                     }
